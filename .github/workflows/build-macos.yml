@@ -20,11 +20,11 @@ jobs:
 
       - name: Build Boost from source
         run: |
-          curl -L -o boost_1_83_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.gz
-          tar xzf boost_1_83_0.tar.gz
+          curl -L -o boost.tar.bz2 https://archives.boost.io/release/1.83.0/source/boost_1_83_0.tar.bz2
+          tar xjf boost.tar.bz2
           cd boost_1_83_0
           ./bootstrap.sh --prefix=$HOME/boost
-          ./b2 install --prefix=$HOME/boost --with-system --with-filesystem --with-thread --with-date_time --with-chrono --with-regex --with-serialization --with-program_options --with-locale link=static
+          ./b2 install --prefix=$HOME/boost --with-system --with-filesystem --with-thread --with-date_time --with-chrono --with-regex --with-serialization --with-program_options --with-locale link=static -j$(sysctl -n hw.ncpu)
 
       - name: Build
         run: |
@@ -70,11 +70,11 @@ jobs:
 
       - name: Build Boost from source
         run: |
-          curl -L -o boost_1_83_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.gz
-          tar xzf boost_1_83_0.tar.gz
+          curl -L -o boost.tar.bz2 https://archives.boost.io/release/1.83.0/source/boost_1_83_0.tar.bz2
+          tar xjf boost.tar.bz2
           cd boost_1_83_0
           ./bootstrap.sh --prefix=$HOME/boost
-          ./b2 install --prefix=$HOME/boost --with-system --with-filesystem --with-thread --with-date_time --with-chrono --with-regex --with-serialization --with-program_options --with-locale link=static
+          ./b2 install --prefix=$HOME/boost --with-system --with-filesystem --with-thread --with-date_time --with-chrono --with-regex --with-serialization --with-program_options --with-locale link=static -j$(sysctl -n hw.ncpu)
 
       - name: Build
         run: |
