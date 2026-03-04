@@ -1,59 +1,10 @@
 name: Build macOS Binaries
 
+# GitHub no longer provides macos-13 (Intel) runners; only Apple Silicon (ARM64) is built.
 on:
   workflow_dispatch:  # Manual trigger only
 
 jobs:
-  build-macos-intel:
-    name: Build macOS Intel (x64)
-    runs-on: macos-13
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Install dependencies
-        run: |
-          brew update
-          brew install openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
-
-      - name: Build Boost from source
-        run: |
-          curl -L -o boost.tar.bz2 https://archives.boost.io/release/1.83.0/source/boost_1_83_0.tar.bz2
-          tar xjf boost.tar.bz2
-          cd boost_1_83_0
-          ./bootstrap.sh --prefix=$HOME/boost
-          ./b2 install --prefix=$HOME/boost --with-system --with-filesystem --with-thread --with-date_time --with-chrono --with-regex --with-serialization --with-program_options --with-locale link=static -j$(sysctl -n hw.ncpu)
-
-      - name: Build
-        run: |
-          mkdir -p build/release
-          cd build/release
-          cmake -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-                -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@3 \
-                -DBOOST_ROOT=$HOME/boost \
-                -DBOOST_INCLUDEDIR=$HOME/boost/include \
-                -DBOOST_LIBRARYDIR=$HOME/boost/lib \
-                -DBoost_NO_BOOST_CMAKE=ON \
-                -DBoost_USE_STATIC_LIBS=ON \
-                ../..
-          make -j$(sysctl -n hw.ncpu)
-
-      - name: Collect binaries
-        run: |
-          mkdir -p macos-x64-binaries
-          cp build/release/bin/xeq-d macos-x64-binaries/
-          cp build/release/bin/xeq-wallet-rpc macos-x64-binaries/
-          cp build/release/bin/xeq-wallet-cli macos-x64-binaries/
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-x64-binaries
-          path: macos-x64-binaries/
-
   build-macos-arm:
     name: Build macOS Apple Silicon (ARM64)
     runs-on: macos-14
