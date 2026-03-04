@@ -16,7 +16,15 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install boost openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
+          brew install openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
+
+      - name: Build Boost from source
+        run: |
+          curl -L -o boost_1_83_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.gz
+          tar xzf boost_1_83_0.tar.gz
+          cd boost_1_83_0
+          ./bootstrap.sh --prefix=$HOME/boost
+          ./b2 install --prefix=$HOME/boost --with-system --with-filesystem --with-thread --with-date_time --with-chrono --with-regex --with-serialization --with-program_options --with-locale link=static
 
       - name: Build
         run: |
@@ -25,9 +33,9 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release \
                 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
                 -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@3 \
-                -DBOOST_ROOT=/usr/local \
-                -DBOOST_INCLUDEDIR=/usr/local/include \
-                -DBOOST_LIBRARYDIR=/usr/local/lib \
+                -DBOOST_ROOT=$HOME/boost \
+                -DBOOST_INCLUDEDIR=$HOME/boost/include \
+                -DBOOST_LIBRARYDIR=$HOME/boost/lib \
                 -DBoost_NO_BOOST_CMAKE=ON \
                 -DBoost_USE_STATIC_LIBS=ON \
                 ../..
@@ -58,19 +66,15 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          # Unlink current boost if any, install from source with all components
-          brew unlink boost || true
-          brew install --build-from-source boost
           brew install openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
 
-      - name: Check Boost installation
+      - name: Build Boost from source
         run: |
-          echo "=== Boost include ==="
-          ls /opt/homebrew/include/boost | head -20
-          echo "=== Boost libs ==="
-          ls /opt/homebrew/lib/libboost* || echo "No boost libs found"
-          echo "=== Brew info ==="
-          brew info boost
+          curl -L -o boost_1_83_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.gz
+          tar xzf boost_1_83_0.tar.gz
+          cd boost_1_83_0
+          ./bootstrap.sh --prefix=$HOME/boost
+          ./b2 install --prefix=$HOME/boost --with-system --with-filesystem --with-thread --with-date_time --with-chrono --with-regex --with-serialization --with-program_options --with-locale link=static
 
       - name: Build
         run: |
@@ -80,9 +84,9 @@ jobs:
                 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
                 -DCMAKE_PREFIX_PATH=/opt/homebrew \
                 -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3 \
-                -DBOOST_ROOT=/opt/homebrew \
-                -DBOOST_INCLUDEDIR=/opt/homebrew/include \
-                -DBOOST_LIBRARYDIR=/opt/homebrew/lib \
+                -DBOOST_ROOT=$HOME/boost \
+                -DBOOST_INCLUDEDIR=$HOME/boost/include \
+                -DBOOST_LIBRARYDIR=$HOME/boost/lib \
                 -DBoost_NO_BOOST_CMAKE=ON \
                 -DBoost_USE_STATIC_LIBS=ON \
                 ../..
