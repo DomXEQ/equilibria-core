@@ -19,16 +19,17 @@ jobs:
           brew install boost openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
 
       - name: Build
-        env:
-          CMAKE_PREFIX_PATH: /usr/local
-          OPENSSL_ROOT_DIR: /usr/local/opt/openssl@3
         run: |
           mkdir -p build/release
           cd build/release
           cmake -DCMAKE_BUILD_TYPE=Release \
                 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-                -DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR \
+                -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@3 \
+                -DBOOST_ROOT=/usr/local \
+                -DBOOST_INCLUDEDIR=/usr/local/include \
+                -DBOOST_LIBRARYDIR=/usr/local/lib \
                 -DBoost_NO_BOOST_CMAKE=ON \
+                -DBoost_USE_STATIC_LIBS=ON \
                 ../..
           make -j$(sysctl -n hw.ncpu)
 
@@ -57,20 +58,33 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install boost openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
+          # Unlink current boost if any, install from source with all components
+          brew unlink boost || true
+          brew install --build-from-source boost
+          brew install openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
+
+      - name: Check Boost installation
+        run: |
+          echo "=== Boost include ==="
+          ls /opt/homebrew/include/boost | head -20
+          echo "=== Boost libs ==="
+          ls /opt/homebrew/lib/libboost* || echo "No boost libs found"
+          echo "=== Brew info ==="
+          brew info boost
 
       - name: Build
-        env:
-          CMAKE_PREFIX_PATH: /opt/homebrew
-          OPENSSL_ROOT_DIR: /opt/homebrew/opt/openssl@3
         run: |
           mkdir -p build/release
           cd build/release
           cmake -DCMAKE_BUILD_TYPE=Release \
                 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
                 -DCMAKE_PREFIX_PATH=/opt/homebrew \
-                -DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR \
+                -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3 \
+                -DBOOST_ROOT=/opt/homebrew \
+                -DBOOST_INCLUDEDIR=/opt/homebrew/include \
+                -DBOOST_LIBRARYDIR=/opt/homebrew/lib \
                 -DBoost_NO_BOOST_CMAKE=ON \
+                -DBoost_USE_STATIC_LIBS=ON \
                 ../..
           make -j$(sysctl -n hw.ncpu)
 
