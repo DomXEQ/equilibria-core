@@ -1361,8 +1361,12 @@ class service_node_list {
     void for_each_pending_l2_state(F&& f) const {
         std::lock_guard lock{m_sn_mutex};
         for (auto& [txid, confirm_info] : m_state.unconfirmed_l2_txes) {
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-lambda-capture"
+#endif
             bool done = std::visit(
-                    [&]<typename T>(const T& evt) {
+                    [&f, &confirm_info]<typename T>(const T& evt) {
                         if constexpr (!std::is_same_v<T, std::monostate>) {
                             if constexpr (std::is_same_v<bool, decltype(f(evt, confirm_info))>)
                                 return f(evt, confirm_info);
@@ -1372,6 +1376,9 @@ class service_node_list {
                         return false;
                     },
                     eth::extract_event(blockchain, txid));
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
             if (done)
                 break;
         }
