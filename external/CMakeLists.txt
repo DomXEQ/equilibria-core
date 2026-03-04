@@ -56,6 +56,17 @@ if(NOT TARGET oxen::logging)
     endif()
 endif()
 
+# On macOS, provide a libzmq target from system (Homebrew zeromq) so the oxen-mq
+# submodule uses it instead of building bundled libzmq (whose CMake requires < 3.5 and fails).
+if(APPLE AND NOT BUILD_STATIC_DEPS)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(libzmq libzmq>=4.3 IMPORTED_TARGET)
+  if(libzmq_FOUND)
+    add_library(libzmq ALIAS PkgConfig::libzmq)
+    message(STATUS "Using system libzmq for oxen-mq (macOS)")
+  endif()
+endif()
+
 system_or_submodule(OXENC oxenc liboxenc>=1.5.0 oxen-encoding)
 system_or_submodule(OXENMQ oxenmq liboxenmq>=1.3.0 oxen-mq)
 
