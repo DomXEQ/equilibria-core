@@ -19,10 +19,17 @@ jobs:
           brew install boost openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
 
       - name: Build
+        env:
+          CMAKE_PREFIX_PATH: /usr/local
+          OPENSSL_ROOT_DIR: /usr/local/opt/openssl@3
         run: |
           mkdir -p build/release
           cd build/release
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ../..
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+                -DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR \
+                -DBoost_NO_BOOST_CMAKE=ON \
+                ../..
           make -j$(sysctl -n hw.ncpu)
 
       - name: Collect binaries
@@ -53,10 +60,18 @@ jobs:
           brew install boost openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
 
       - name: Build
+        env:
+          CMAKE_PREFIX_PATH: /opt/homebrew
+          OPENSSL_ROOT_DIR: /opt/homebrew/opt/openssl@3
         run: |
           mkdir -p build/release
           cd build/release
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ../..
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+                -DCMAKE_PREFIX_PATH=/opt/homebrew \
+                -DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR \
+                -DBoost_NO_BOOST_CMAKE=ON \
+                ../..
           make -j$(sysctl -n hw.ncpu)
 
       - name: Collect binaries
