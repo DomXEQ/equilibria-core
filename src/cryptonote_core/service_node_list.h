@@ -1362,7 +1362,7 @@ class service_node_list {
         std::lock_guard lock{m_sn_mutex};
         for (auto& [txid, confirm_info] : m_state.unconfirmed_l2_txes) {
             bool done = std::visit(
-                    [&f, &confirm_info]<typename T>(const T& evt) {
+                    [&]<typename T>(const T& evt) {
                         if constexpr (!std::is_same_v<T, std::monostate>) {
                             if constexpr (std::is_same_v<bool, decltype(f(evt, confirm_info))>)
                                 return f(evt, confirm_info);

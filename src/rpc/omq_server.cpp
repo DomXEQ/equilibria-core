@@ -697,7 +697,7 @@ static void process_sub(
         std::unordered_map<oxenmq::ConnectionID, SubType>& subs) {
 
     auto expiry = std::chrono::steady_clock::now() + 30min;
-    auto result = subs.emplace(m.conn, expiry);
+    auto result = subs.emplace(m.conn, SubType{expiry});
 
     if (!result.second) {
         result.first->second.expiry = expiry;
