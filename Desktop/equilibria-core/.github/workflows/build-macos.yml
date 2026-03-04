@@ -1,0 +1,67 @@
+name: Build macOS Binaries
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  build-macos-intel:
+    name: Build macOS Intel (x64)
+    runs-on: macos-13
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install boost openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
+
+      - name: Build
+        run: |
+          make -j$(sysctl -n hw.ncpu) release
+
+      - name: Collect binaries
+        run: |
+          mkdir -p macos-x64-binaries
+          cp build/release/bin/equilibriad macos-x64-binaries/
+          cp build/release/bin/equilibria-wallet-rpc macos-x64-binaries/
+          cp build/release/bin/equilibria-wallet-cli macos-x64-binaries/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-x64-binaries
+          path: macos-x64-binaries/
+
+  build-macos-arm:
+    name: Build macOS Apple Silicon (ARM64)
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install boost openssl@3 libsodium miniupnpc expat protobuf cmake pkgconfig zeromq
+
+      - name: Build
+        run: |
+          make -j$(sysctl -n hw.ncpu) release
+
+      - name: Collect binaries
+        run: |
+          mkdir -p macos-arm64-binaries
+          cp build/release/bin/equilibriad macos-arm64-binaries/
+          cp build/release/bin/equilibria-wallet-rpc macos-arm64-binaries/
+          cp build/release/bin/equilibria-wallet-cli macos-arm64-binaries/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64-binaries
+          path: macos-arm64-binaries/
