@@ -44,9 +44,9 @@ jobs:
       - name: Collect binaries
         run: |
           mkdir -p macos-x64-binaries
-          cp build/release/bin/equilibriad macos-x64-binaries/
-          cp build/release/bin/equilibria-wallet-rpc macos-x64-binaries/
-          cp build/release/bin/equilibria-wallet-cli macos-x64-binaries/
+          cp build/release/bin/xeq-d macos-x64-binaries/
+          cp build/release/bin/xeq-wallet-rpc macos-x64-binaries/
+          cp build/release/bin/xeq-wallet-cli macos-x64-binaries/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -95,9 +95,9 @@ jobs:
       - name: Collect binaries
         run: |
           mkdir -p macos-arm64-binaries
-          cp build/release/bin/equilibriad macos-arm64-binaries/
-          cp build/release/bin/equilibria-wallet-rpc macos-arm64-binaries/
-          cp build/release/bin/equilibria-wallet-cli macos-arm64-binaries/
+          cp build/release/bin/xeq-d macos-arm64-binaries/
+          cp build/release/bin/xeq-wallet-rpc macos-arm64-binaries/
+          cp build/release/bin/xeq-wallet-cli macos-arm64-binaries/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
